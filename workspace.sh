@@ -31,7 +31,7 @@ case "$1" in
             fi
         fi
         
-        docker run --rm --gpus all -p 8888:8888 -v $directory:/home/ubuntu/workspace:rw ml_cv_dockerized_workspace
+        docker run --rm --gpus all -p 8888:8888  --ipc=host --name ml_cv_ws -v $directory:/home/ubuntu/workspace:rw ml_cv_dockerized_workspace
         ;;
 
     "build" )
@@ -49,10 +49,11 @@ case "$1" in
         if [ ! -d "$directory" ]; then
             mkdir $directory
         fi
-        docker run --rm --restart unless-stopped --gpus all -d -p 8888:8888 -v $directory:/home/ubuntu/workspace ml_cv_dockerized_workspace
+        docker run --restart unless-stopped --gpus all -d -p 8888:8888 --ipc=host --name ml_cv_ws -v $directory:/home/ubuntu/workspace ml_cv_dockerized_workspace
         ;;
 
     "help" )
+    
         show_help
         exit
         ;;

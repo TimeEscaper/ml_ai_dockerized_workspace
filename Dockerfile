@@ -1,6 +1,4 @@
-# Inherit from image: https://github.com/Borda/docker_python-opencv-ffmpeg
-# FROM borda/docker_python-opencv-ffmpeg:py36-cuda
-FROM nvidia/cuda:10.1-cudnn8-devel-ubuntu18.04
+FROM nvidia/cuda:10.2-cudnn8-devel-ubuntu18.04
 
 # For the next steps thanks to http://www.science.smith.edu/dftwiki/index.php/Tutorial:_Docker_Anaconda_Python_--_4
 # Updating Ubuntu packages
@@ -30,34 +28,29 @@ WORKDIR /home/ubuntu/
 RUN chmod a+rwx /home/ubuntu/
 
 # Anaconda installation
-RUN wget https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh \
-    && bash Anaconda3-2019.10-Linux-x86_64.sh -b \
-    && rm Anaconda3-2019.10-Linux-x86_64.sh
+RUN wget https://repo.anaconda.com/archive/Anaconda3-2020.11-Linux-x86_64.sh \
+    && bash Anaconda3-2020.11-Linux-x86_64.sh -b \
+    && rm Anaconda3-2020.11-Linux-x86_64.sh
 
 # Set path to conda
 ENV PATH /home/ubuntu/anaconda3/bin:$PATH
 
 # Updating Anaconda packages
-RUN conda update conda -y \
-    && conda update anaconda -y \
-    && conda update --all -y
+# TODO: Are updates needed?
+# RUN conda update conda -y \
+#   && conda update anaconda -y \
+#   && conda update --all -y
 
 # Install general (more lightweight) packages
-    # XGBoost
-RUN conda install -c conda-forge xgboost -y \
-    # CatBoost
-    && conda install -c anaconda graphviz && conda config --add channels conda-forge && conda install catboost \
-    # Plotly
-    && conda install -c plotly plotly -y \
-    # Colorlover
-    && conda install -c conda-forge colorlover -y \
-    # OpenAI Gym
+RUN pip install xgboost catboost plotly colorlover \
     && pip install gym --user
 
 # Install more heavy packages separately
-RUN conda install pytorch torchvision cudatoolkit=10.1 -c pytorch
-RUN pip install tensorflow-gpu
-RUN conda install -c conda-forge/label/gcc7 opencv
+RUN conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch
+
+# MXNet and GluonCV
+RUN pip install --upgrade mxnet-cu102 \
+    && pip install --upgrade gluoncv
 
 # Configuring access to Jupyter
 ARG password
